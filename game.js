@@ -1,3 +1,4 @@
+// Lo comentado son formas alternas o primeros intentos
 const canvas = document.querySelector("#game");
 const game = canvas.getContext('2d');
 const btnUp = document.querySelector('#up');
@@ -8,13 +9,27 @@ const btnLeft = document.querySelector('#left');
 let canvasSize;
 let elementSize;
 
+let playerPos = {
+  x: undefined,
+  y: undefined,
+};
+// let pOldPos = {
+//   x: undefined,
+//   y: undefined,
+// };
+// let startDoor = {
+//   x: undefined,
+//   y: undefined,
+// };
+
+
 window.addEventListener('load', setCanvasSize);
 window.addEventListener('resize', setCanvasSize);
 btnUp.addEventListener('click', movUp);
 btnLeft.addEventListener('click', movLeft);
 btnRight.addEventListener('click', movRight);
 btnDown.addEventListener('click', movDown);
-window.addEventListener('keyup', (event) => {
+window.addEventListener('keydown', (event) => {
   switch (event.code) {
     case 'ArrowUp':
       movUp();
@@ -31,19 +46,6 @@ window.addEventListener('keyup', (event) => {
   } 
 });
 
-function movUp() {
-  console.log(`Quiero ir pa'rriba`)
-}
-function movLeft() {
-  console.log(`Quiero ir pa' la otra derecha`)
-}
-function movRight() {
-  console.log(`Quiero ir pa' la derecha`)
-}
-function movDown() {
-  console.log(`Quiero ir pa'bajo`)
-}
-
 function startGame() {
   game.font = elementSize + "px Verdana";
   game.textAlign = "end";
@@ -52,33 +54,81 @@ function startGame() {
   const mapRows = map.trim().split('\n');
   const mapRowCols = mapRows.map(row => row.trim().split(''));
 
-  // mapRowCols.forEach((row, rowI) => {
-  //   row.forEach((col, colI) => {
-  //     const emoji = emojis[col];
-  //     const posX = elementSize * (colI + 1);
-  //     const posY = elementSize * (rowI + 1);
-  //     game.fillText(emoji, posX, posY)
-  //   });
-  // });
+  game.clearRect(0,0,canvasSize,canvasSize);
+  mapRowCols.forEach((row, rowI) => {
+    row.forEach((col, colI) => {
+      const emoji = emojis[col];
+      const posX = elementSize * (colI + 1);
+      const posY = elementSize * (rowI + 1);
 
-  for (let row = 1; row <= 10; row++) {
-    for (let col = 1; col <= 10; col++) {
-      game.fillText(emojis[mapRowCols[row - 1][col - 1]],elementSize * col, elementSize * row)
-    }
+      if (col == "O"){
+        if (!playerPos.x && !playerPos.y) {
+          playerPos.x = posX;
+          playerPos.y = posY;
+        }
+      }      
+
+      game.fillText(emoji, posX, posY)
+    });
+  });
+
+  movePlayer();
+}
+
+function movePlayer() {
+  // game.clearRect(pOldPos.x , pOldPos.y , elementSize, elementSize);
+  // game.clearRect(startDoor.x - elementSize, startDoor.y - elementSize, elementSize, elementSize);
+  // game.fillText(emojis["O"], startDoor.x, startDoor.y);
+  game.fillText(emojis["PLAYER"], playerPos.x, playerPos.y);
+}
+function movUp() {
+  // pOldPos.x = playerPos.x - elementSize;
+  // pOldPos.y = playerPos.y - elementSize;
+  if ((playerPos.y - elementSize) <= 0) {
+  } else {
+    playerPos.y -= elementSize;
+    startGame()
+  }
+}
+function movLeft() {
+  // pOldPos.x = playerPos.x - elementSize;
+  // pOldPos.y = playerPos.y - elementSize;
+  if ((playerPos.x - elementSize) < elementSize) {
+  } else {
+    playerPos.x -= elementSize;
+    startGame()
+  }
+}
+function movRight() {
+  // pOldPos.x = playerPos.x - elementSize;
+  // pOldPos.y = playerPos.y - elementSize;
+  if ((playerPos.x + elementSize) > (canvasSize + elementSize)) {
+  } else {
+    playerPos.x += elementSize;
+    startGame()
+  }
+}
+function movDown() {
+  // pOldPos.x = playerPos.x - elementSize;
+  // pOldPos.y = playerPos.y - elementSize;
+  if ((playerPos.y + elementSize) > canvasSize) {
+  } else {
+    playerPos.y += elementSize;
+    startGame()
   }
 }
 
 function setCanvasSize(){
   if(window.innerHeight > window.innerWidth) {
-    canvasSize = window.innerWidth * 0.75;
+    canvasSize = Math.floor(window.innerWidth * 0.80);
   } else {
-    canvasSize = window.innerHeight * 0.75;
+    canvasSize = Math.floor(window.innerHeight * 0.80);
   }
 
-  canvas.setAttribute('width', canvasSize)
-  canvas.setAttribute('height', canvasSize)
+  canvas.setAttribute('width', canvasSize);
+  canvas.setAttribute('height', canvasSize);
 
-  elementSize = canvasSize / 10
+  elementSize = canvasSize / 10;
 
   startGame();
 }
