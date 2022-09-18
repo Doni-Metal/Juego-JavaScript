@@ -4,10 +4,18 @@ const btnUp = document.querySelector('#up');
 const btnDown = document.querySelector('#down');
 const btnRight = document.querySelector('#right');
 const btnLeft = document.querySelector('#left');
+const spanLives = document.querySelector('#lives');
+const spanTime = document.querySelector('#time');
+const spanRecord = document.querySelector('#record');
 
 let canvasSize;
 let elementSize;
 let level = 0;
+let lives = 5;
+let timeStart;
+let timePlayer;
+let playerRecord;
+let timeInterval;
 
 const playerPos = {
   x: undefined,
@@ -58,8 +66,18 @@ function startGame() {
     return
   }
 
+  if (!timeStart) {
+    timeStart = Date.now();
+    timeInterval = setInterval(showTime, 100)
+  }
+
+  playerRecord = localStorage.record;
+  spanRecord.innerText = `${Number(playerRecord) / 1000} Secs`;
+
   const mapRows = map.trim().split('\n');
   const mapRowCols = mapRows.map(row => row.trim().split(''));
+
+  showLives();
 
   bombs = [];
   game.clearRect(0,0,canvasSize,canvasSize);
@@ -92,8 +110,42 @@ function startGame() {
   movePlayer();
 }
 
+function showTime() {
+  spanTime.innerText = `${(Date.now() - timeStart) / 1000} secs`;
+}
+
+function showLives() {
+  const heartsArr = Array(lives).fill(emojis["HEART"]);
+
+  spanLives.innerText = "";
+  heartsArr.forEach(heart => spanLives.append(heart))
+
+}
+
+function looseGame() {
+  if (lives === 0) {
+    level = 0
+    lives = 5
+    playerPos.x = undefined;
+    playerPos.y = undefined;
+    timeStart = undefined;
+    bombs = [];
+    explotion = [];
+    startGame();
+    console.log("Perdiste, Quieres volver a intentarlo?");
+  }
+}
+
 function gameWin() {
-  console.log("Ganastes")
+  timePlayer = Date.now() - timeStart;
+  clearInterval(timeInterval);
+  if (!playerRecord) {
+    localStorage.setItem("record", timePlayer)
+  } else if (timePlayer < playerRecord) {
+    localStorage.setItem("record", timePlayer)
+    spanRecord.innerText = `${Number(timePlayer) / 1000} Secs`;
+  }
+  console.log("Ganastes");
 }
 
 function levelWin() {
@@ -110,14 +162,13 @@ function levelWin() {
 function bombCollition() {
   for (i = 0; i < bombs.length; i++) {
     if (Math.floor(bombs[i].x) === Math.floor(playerPos.x) && Math.floor(bombs[i].y) === Math.floor(playerPos.y)) {
+      lives--;
       explotion.push({
         x: bombs[i].x,
         y: bombs[i].y,
       })
       playerPos.x = door.x;
       playerPos.y = door.y;
-
-      console.log("Bailaste Bertha");
 
       startGame();
       break
@@ -126,6 +177,7 @@ function bombCollition() {
 
   if (explotion.length > 0) {
     for (i = 0; i < explotion.length; i++) {
+      game.clearRect((explotion[i].x - elementSize),(explotion[i].y - elementSize), elementSize, elementSize)
       game.fillText(emojis["BOMB_COLLISION"],explotion[i].x, explotion[i].y)
     }
   }
@@ -134,6 +186,8 @@ function bombCollition() {
 function movePlayer() { 
   bombCollition();
 
+  looseGame();
+  
   levelWin();
   
   game.fillText(emojis["PLAYER"], playerPos.x, playerPos.y);
