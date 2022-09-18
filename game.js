@@ -1,4 +1,3 @@
-// Lo comentado son formas alternas o primeros intentos
 const canvas = document.querySelector("#game");
 const game = canvas.getContext('2d');
 const btnUp = document.querySelector('#up');
@@ -8,20 +7,22 @@ const btnLeft = document.querySelector('#left');
 
 let canvasSize;
 let elementSize;
+let level = 0;
 
-let playerPos = {
+const playerPos = {
+  x: undefined,
+  y: undefined,
+}; 
+const goal = {
   x: undefined,
   y: undefined,
 };
-// let pOldPos = {
-//   x: undefined,
-//   y: undefined,
-// };
-// let startDoor = {
-//   x: undefined,
-//   y: undefined,
-// };
-
+const door = {
+  x: undefined,
+  y: undefined,
+};
+let bombs = [];
+let explotion = [];
 
 window.addEventListener('load', setCanvasSize);
 window.addEventListener('resize', setCanvasSize);
@@ -50,11 +51,19 @@ function startGame() {
   game.font = elementSize + "px Verdana";
   game.textAlign = "end";
 
-  const map = maps[0];
+  const map = maps[level];
+
+  if (!map) {
+    gameWin();
+    return
+  }
+
   const mapRows = map.trim().split('\n');
   const mapRowCols = mapRows.map(row => row.trim().split(''));
 
+  bombs = [];
   game.clearRect(0,0,canvasSize,canvasSize);
+  
   mapRowCols.forEach((row, rowI) => {
     row.forEach((col, colI) => {
       const emoji = emojis[col];
@@ -66,7 +75,15 @@ function startGame() {
           playerPos.x = posX;
           playerPos.y = posY;
         }
-      }      
+      } else if (col == "I") {
+        goal.x = posX;
+        goal.y = posY;
+      } else if (col == "X") {
+        bombs.push({
+          x: posX,
+          y: posY,
+        });
+      }
 
       game.fillText(emoji, posX, posY)
     });
@@ -75,15 +92,53 @@ function startGame() {
   movePlayer();
 }
 
-function movePlayer() {
-  // game.clearRect(pOldPos.x , pOldPos.y , elementSize, elementSize);
-  // game.clearRect(startDoor.x - elementSize, startDoor.y - elementSize, elementSize, elementSize);
-  // game.fillText(emojis["O"], startDoor.x, startDoor.y);
+function gameWin() {
+  console.log("Ganastes")
+}
+
+function levelWin() {
+  const goalCollx = Math.floor(playerPos.x) === Math.floor(goal.x);
+  const goalColly = Math.floor(playerPos.y) === Math.floor(goal.y);
+  if (goalCollx && goalColly) {
+    level++;
+    explotion = [];
+    startGame();
+  }
+
+}
+
+function bombCollition() {
+  for (i = 0; i < bombs.length; i++) {
+    if (Math.floor(bombs[i].x) === Math.floor(playerPos.x) && Math.floor(bombs[i].y) === Math.floor(playerPos.y)) {
+      explotion.push({
+        x: bombs[i].x,
+        y: bombs[i].y,
+      })
+      playerPos.x = door.x;
+      playerPos.y = door.y;
+
+      console.log("Bailaste Bertha");
+
+      startGame();
+      break
+    }
+  }
+
+  if (explotion.length > 0) {
+    for (i = 0; i < explotion.length; i++) {
+      game.fillText(emojis["BOMB_COLLISION"],explotion[i].x, explotion[i].y)
+    }
+  }
+}
+
+function movePlayer() { 
+  bombCollition();
+
+  levelWin();
+  
   game.fillText(emojis["PLAYER"], playerPos.x, playerPos.y);
 }
 function movUp() {
-  // pOldPos.x = playerPos.x - elementSize;
-  // pOldPos.y = playerPos.y - elementSize;
   if ((playerPos.y - elementSize) <= 0) {
   } else {
     playerPos.y -= elementSize;
@@ -91,8 +146,6 @@ function movUp() {
   }
 }
 function movLeft() {
-  // pOldPos.x = playerPos.x - elementSize;
-  // pOldPos.y = playerPos.y - elementSize;
   if ((playerPos.x - elementSize) < elementSize) {
   } else {
     playerPos.x -= elementSize;
@@ -100,8 +153,6 @@ function movLeft() {
   }
 }
 function movRight() {
-  // pOldPos.x = playerPos.x - elementSize;
-  // pOldPos.y = playerPos.y - elementSize;
   if ((playerPos.x + elementSize) > (canvasSize + elementSize)) {
   } else {
     playerPos.x += elementSize;
@@ -109,8 +160,6 @@ function movRight() {
   }
 }
 function movDown() {
-  // pOldPos.x = playerPos.x - elementSize;
-  // pOldPos.y = playerPos.y - elementSize;
   if ((playerPos.y + elementSize) > canvasSize) {
   } else {
     playerPos.y += elementSize;
