@@ -223,9 +223,9 @@ function movDown() {
 
 function setCanvasSize(){
   if(window.innerHeight > window.innerWidth) {
-    canvasSize = Math.floor(window.innerWidth * 0.80);
+    canvasSize = Math.floor(window.innerWidth * 0.7);
   } else {
-    canvasSize = Math.floor(window.innerHeight * 0.80);
+    canvasSize = Math.floor(window.innerHeight * 0.7);
   }
 
   canvas.setAttribute('width', canvasSize);
@@ -233,5 +233,7 @@ function setCanvasSize(){
 
   elementSize = canvasSize / 10;
 
+  playerPos.x = undefined;
+  playerPos.y = undefined;
   startGame();
 }
