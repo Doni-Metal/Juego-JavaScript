@@ -162,15 +162,15 @@ function levelWin() {
 function bombCollition() {
   for (i = 0; i < bombs.length; i++) {
     if (Math.floor(bombs[i].x) === Math.floor(playerPos.x) && Math.floor(bombs[i].y) === Math.floor(playerPos.y)) {
-      lives--;
+      // lives--;
       explotion.push({
         x: bombs[i].x,
         y: bombs[i].y,
       })
-      playerPos.x = door.x;
-      playerPos.y = door.y;
+      // playerPos.x = door.x;
+      // playerPos.y = door.y;
 
-      startGame();
+      // startGame();
       break
     }
   }
@@ -193,28 +193,28 @@ function movePlayer() {
   game.fillText(emojis["PLAYER"], playerPos.x, playerPos.y);
 }
 function movUp() {
-  if ((playerPos.y - elementSize) <= 0) {
+  if ((playerPos.y - (elementSize + 1)) <= 0) {
   } else {
     playerPos.y -= elementSize;
     startGame()
   }
 }
 function movLeft() {
-  if ((playerPos.x - elementSize) < elementSize) {
+  if ((playerPos.x - (elementSize + 1)) <= 0) {
   } else {
     playerPos.x -= elementSize;
     startGame()
   }
 }
 function movRight() {
-  if ((playerPos.x + elementSize) > (canvasSize + elementSize)) {
+  if ((playerPos.x + (elementSize - 1)) > canvasSize)  {
   } else {
     playerPos.x += elementSize;
     startGame()
   }
 }
 function movDown() {
-  if ((playerPos.y + elementSize) > canvasSize) {
+  if ((playerPos.y + (elementSize - 1)) > canvasSize) {
   } else {
     playerPos.y += elementSize;
     startGame()
