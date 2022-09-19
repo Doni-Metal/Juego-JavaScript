@@ -78,7 +78,7 @@ function startGame() {
   const mapRowCols = mapRows.map(row => row.trim().split(''));
 
   showLives();
-
+  
   bombs = [];
   game.clearRect(0,0,canvasSize,canvasSize);
   
@@ -102,7 +102,6 @@ function startGame() {
           y: posY,
         });
       }
-
       game.fillText(emoji, posX, posY)
     });
   });
@@ -162,15 +161,15 @@ function levelWin() {
 function bombCollition() {
   for (i = 0; i < bombs.length; i++) {
     if (Math.floor(bombs[i].x) === Math.floor(playerPos.x) && Math.floor(bombs[i].y) === Math.floor(playerPos.y)) {
-      // lives--;
+      lives--;
       explotion.push({
         x: bombs[i].x,
         y: bombs[i].y,
       })
-      // playerPos.x = door.x;
-      // playerPos.y = door.y;
+      playerPos.x = door.x;
+      playerPos.y = door.y;
 
-      // startGame();
+      startGame();
       break
     }
   }
